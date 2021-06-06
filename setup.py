@@ -9,7 +9,8 @@ setup(
                       'pystrict',
                       'matplotlib',
                       'ipywidgets',
-                      'ghapi'],  # TODO #457
+                      'ghapi',
+                      'evtk @ git+https://github.com/paulo-herrera/PyEVTK@5e0616e'],  # TODO #457
     author='https://github.com/orgs/atmos-cloud-sim-uj/people',
     license="GPL-3.0",
     packages=find_packages(include=['PySDM_examples', 'PySDM_examples.*'])
