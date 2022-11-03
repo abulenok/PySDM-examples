@@ -27,29 +27,58 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from typing import Iterable
-from pystrict import strict
+
+import numpy as np
+from PySDM import Formulae
+from PySDM.dynamics.collisions.breakup_efficiencies import ConstEb
+from PySDM.dynamics.collisions.breakup_fragmentations import Gaussian
+from PySDM.dynamics.collisions.coalescence_efficiencies import ConstEc
 from PySDM.physics import si
-from PySDM.backends.numba.conf import JIT_FLAGS
+
 from PySDM_examples.Morrison_and_Grabowski_2007.strato_cumulus import StratoCumulus
 
 
-@strict
 class Settings(StratoCumulus):
     def __dir__(self) -&gt; Iterable[str]:
-        return &#39;dt&#39;, &#39;grid&#39;, &#39;size&#39;, &#39;n_spin_up&#39;, &#39;versions&#39;, &#39;steps_per_output_interval&#39;, &#39;formulae&#39;, \
-            &#39;initial_dry_potential_temperature_profile&#39;, &#39;initial_vapour_mixing_ratio_profile&#39;
+        return (
+            &#34;dt&#34;,
+            &#34;grid&#34;,
+            &#34;size&#34;,
+            &#34;n_spin_up&#34;,
+            &#34;versions&#34;,
+            &#34;steps_per_output_interval&#34;,
+            &#34;formulae&#34;,
+            &#34;initial_dry_potential_temperature_profile&#34;,
+            &#34;initial_vapour_mixing_ratio_profile&#34;,
+            &#34;rhod_w_max&#34;,
+        )
 
-    def __init__(self, fastmath: bool = JIT_FLAGS[&#39;fastmath&#39;]):
-        super().__init__(fastmath)
+    def __init__(
+        self,
+        formulae=None,
+        rhod_w_max: float = 0.6
+        * si.metres
+        / si.seconds
+        * (si.kilogram / si.metre**3),
+    ):
+        super().__init__(formulae or Formulae(), rhod_w_max=rhod_w_max)
 
         self.grid = (25, 25)
         self.size = (1500 * si.metres, 1500 * si.metres)
-        self.rho_w_max = .6 * si.metres / si.seconds * (si.kilogram / si.metre ** 3)
 
         # output steps
         self.simulation_time = 90 * si.minute
         self.dt = 5 * si.second
-        self.spin_up_time = 1 * si.hour</code></pre>
+        self.spin_up_time = 1 * si.hour
+
+        # additional breakup dynamics
+        mu_r = 10 * si.um
+        mu = 4 / 3 * np.pi * mu_r**3
+        sigma = mu / 2.5
+        vmin = mu / 1000
+        self.coalescence_efficiency = ConstEc(Ec=0.95)
+        self.breakup_efficiency = ConstEb(Eb=1.0)
+        self.breakup_fragmentation = Gaussian(mu=mu, sigma=sigma, vmin=vmin, nfmax=10)</code></pre>
 </details>
 </section>
 <section>
@@ -63,7 +92,7 @@ class Settings(StratoCumulus):
 <dl>
 <dt id="PySDM_examples.Arabas_et_al_2015.settings.Settings"><code class="flex name class">
 <span>class <span class="ident">Settings</span></span>
-<span>(</span><span>fastmath: bool = True)</span>
+<span>(</span><span>formulae=None, rhod_w_max: float = 0.6)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -71,23 +100,47 @@ class Settings(StratoCumulus):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@strict
-class Settings(StratoCumulus):
+<pre><code class="python">class Settings(StratoCumulus):
     def __dir__(self) -&gt; Iterable[str]:
-        return &#39;dt&#39;, &#39;grid&#39;, &#39;size&#39;, &#39;n_spin_up&#39;, &#39;versions&#39;, &#39;steps_per_output_interval&#39;, &#39;formulae&#39;, \
-            &#39;initial_dry_potential_temperature_profile&#39;, &#39;initial_vapour_mixing_ratio_profile&#39;
+        return (
+            &#34;dt&#34;,
+            &#34;grid&#34;,
+            &#34;size&#34;,
+            &#34;n_spin_up&#34;,
+            &#34;versions&#34;,
+            &#34;steps_per_output_interval&#34;,
+            &#34;formulae&#34;,
+            &#34;initial_dry_potential_temperature_profile&#34;,
+            &#34;initial_vapour_mixing_ratio_profile&#34;,
+            &#34;rhod_w_max&#34;,
+        )
 
-    def __init__(self, fastmath: bool = JIT_FLAGS[&#39;fastmath&#39;]):
-        super().__init__(fastmath)
+    def __init__(
+        self,
+        formulae=None,
+        rhod_w_max: float = 0.6
+        * si.metres
+        / si.seconds
+        * (si.kilogram / si.metre**3),
+    ):
+        super().__init__(formulae or Formulae(), rhod_w_max=rhod_w_max)
 
         self.grid = (25, 25)
         self.size = (1500 * si.metres, 1500 * si.metres)
-        self.rho_w_max = .6 * si.metres / si.seconds * (si.kilogram / si.metre ** 3)
 
         # output steps
         self.simulation_time = 90 * si.minute
         self.dt = 5 * si.second
-        self.spin_up_time = 1 * si.hour</code></pre>
+        self.spin_up_time = 1 * si.hour
+
+        # additional breakup dynamics
+        mu_r = 10 * si.um
+        mu = 4 / 3 * np.pi * mu_r**3
+        sigma = mu / 2.5
+        vmin = mu / 1000
+        self.coalescence_efficiency = ConstEc(Ec=0.95)
+        self.breakup_efficiency = ConstEb(Eb=1.0)
+        self.breakup_fragmentation = Gaussian(mu=mu, sigma=sigma, vmin=vmin, nfmax=10)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
